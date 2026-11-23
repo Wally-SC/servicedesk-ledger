@@ -66,6 +66,19 @@ este projeto quer demonstrar. O preço de manter a regra "dependências apontam
 para dentro" é que a porta da consulta fica em `application/portas`: a rota
 depende da interface, não do SQL.
 
+## Os casos de uso que existem
+
+Dois fluxos de escrita passam pelo caminho completo, de rota a repositório:
+
+- **`FecharCiclo`** — fecha a competência de todos os clientes com contrato,
+  calcula a fatura no domínio (mensalidade, franquia, excedente em blocos de 15
+  minutos) e grava ciclo, fatura e itens. É idempotente: rodar de novo pula quem
+  já foi fechado. A massa fictícia usa este mesmo caso de uso para gerar o
+  histórico de faturas, então a regra testada é a regra que produz os dados.
+- **`SolicitarMedicao`** — valida o experimento contra o catálogo e recusa um
+  pedido quando já há medição em andamento. A execução roda fora da requisição,
+  com uma trava consultiva no PostgreSQL como garantia final.
+
 ## O que garante a regra
 
 `tests/arquitetura/test_dependencias.py` lê cada arquivo das camadas com `ast` e

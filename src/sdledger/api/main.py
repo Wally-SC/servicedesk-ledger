@@ -33,7 +33,7 @@ async def ciclo_de_vida(app: FastAPI) -> AsyncIterator[None]:
         pool.close()
 
 
-app = FastAPI(title="ServiceDesk Ledger", version="0.2.0", lifespan=ciclo_de_vida)
+app = FastAPI(title="ServiceDesk Ledger", version="1.0.0", lifespan=ciclo_de_vida)
 erros.registrar(app)
 app.include_router(painel.router)
 app.include_router(cobranca.router)

@@ -1,6 +1,6 @@
 [project]
 name = "servicedesk-ledger"
-version = "0.1.0"
+version = "1.0.0"
 description = "Painel de SLA e backlog de chamados, cobrança recorrente e laboratório de índices"
 readme = "README.md"
 requires-python = ">=3.12"
