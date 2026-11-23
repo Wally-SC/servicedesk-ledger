@@ -84,3 +84,30 @@ def test_parte_dos_chamados_fica_sem_primeira_resposta(conexao: psycopg.Connecti
     ).fetchone()
     assert linha is not None
     assert 0 < linha[0] < PEQUENO.chamados
+
+
+def test_chamado_antigo_nao_fica_aberto_para_sempre(conexao: psycopg.Connection) -> None:
+    """A primeira versão deixava os chamados sem resposta abertos para sempre, e
+    o backlog acumulava idade de centenas de dias."""
+    gerar(conexao, PEQUENO, semente=42, fim=FIM)
+
+    linha = conexao.execute(
+        """
+        SELECT max(%s::date - aberto_em::date) FROM chamado WHERE resolvido_em IS NULL
+        """,
+        (FIM,),
+    ).fetchone()
+    assert linha is not None
+    assert linha[0] is not None
+    assert linha[0] <= 60
+
+
+def test_existe_chamado_resolvido_sem_primeira_resposta(conexao: psycopg.Connection) -> None:
+    """O painel conta esse caso à parte, então a massa precisa produzi-lo."""
+    gerar(conexao, PEQUENO, semente=42, fim=FIM)
+
+    linha = conexao.execute(
+        "SELECT count(*) FROM chamado WHERE resolvido_em IS NOT NULL"
+        " AND primeira_resposta_em IS NULL"
+    ).fetchone()
+    assert linha is not None and linha[0] > 0
