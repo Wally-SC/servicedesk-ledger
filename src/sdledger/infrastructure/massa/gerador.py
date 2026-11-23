@@ -362,10 +362,14 @@ def _chamados(
                     (chamado_id, estado_periodo, f"[{respondido},{fim_atendimento})")
                 )
 
+        # Um ou dois lançamentos de 10 a 60 minutos: perto de uma hora por
+        # chamado, que é o que suporte de verdade gasta. A primeira versão
+        # lançava até três blocos de três horas e a receita da massa grande
+        # passava de R$ 100 milhões.
         if resolvido is not None and respondido is not None:
-            for _ in range(rng.randrange(1, 4)):
+            for _ in range(rng.randrange(1, 3)):
                 linhas_apontamento.append(
-                    (chamado_id, responsavel, rng.randrange(15, 181), resolvido)
+                    (chamado_id, responsavel, rng.randrange(10, 61), resolvido)
                 )
 
     _copiar(
