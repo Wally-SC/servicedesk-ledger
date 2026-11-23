@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := ajuda
-.PHONY: ajuda instalar fmt lint tipos teste teste-tudo migrar up down logs psql
+.PHONY: ajuda instalar fmt lint tipos teste teste-tudo migrar semear semear-grande up down logs psql
 
 ajuda:  ## Lista os alvos disponíveis
 	@grep -E '^[a-z-]+:.*?##' $(MAKEFILE_LIST) | sed -e 's/:.*##/ -/'
@@ -26,6 +26,12 @@ teste-tudo:  ## Roda a suíte inteira dentro do compose, contra o banco
 
 migrar:  ## Aplica as migrações no banco do compose
 	docker compose run --rm app alembic upgrade head
+
+semear:  ## Gera a massa pequena (2 mil chamados)
+	docker compose run --rm app python -m sdledger.infrastructure.massa.cli --perfil pequeno
+
+semear-grande:  ## Gera a massa grande (300 mil chamados, ~1 minuto)
+	docker compose run --rm app python -m sdledger.infrastructure.massa.cli --perfil grande
 
 up:  ## Sobe o banco e a aplicação
 	@test -f .env || cp .env.example .env
