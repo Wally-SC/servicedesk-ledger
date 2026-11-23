@@ -16,5 +16,6 @@ como "nada até o momento", e não preenchida com texto genérico.
 | [0004](0004-processo-de-pull-request.md) | Processo de pull request trabalhando sozinho | aceita |
 | [0005](0005-definicao-das-metricas.md) | Denominador dos percentis e definição das métricas | aceita |
 | [0006](0006-massa-ficticia-em-dois-perfis.md) | Massa fictícia em dois perfis | aceita |
+| [0007](0007-regras-de-fechamento-do-ciclo.md) | Regras de fechamento do ciclo de faturamento | aceita |
 
 O método de trabalho com a IA está em [../uso-de-ia.md](../uso-de-ia.md).

@@ -135,14 +135,17 @@ def gerar(conexao: psycopg.Connection, perfil: Perfil, semente: int, fim: date) 
     inicio = fim - timedelta(days=perfil.meses * 30)
     dias = (fim - inicio).days
 
-    _catalogo(conexao, rng, perfil, inicio, fim)
-    return _chamados(conexao, rng, perfil, inicio, dias, fim)
+    saidas = _catalogo(conexao, rng, perfil, inicio, fim)
+    return _chamados(conexao, rng, perfil, inicio, dias, fim, saidas)
 
 
 def _catalogo(
     conexao: psycopg.Connection, rng: random.Random, perfil: Perfil, inicio: date, fim: date
-) -> None:
-    """Feriados, planos, políticas de SLA, agentes, clientes e contratos."""
+) -> dict[int, date]:
+    """Feriados, planos, políticas de SLA, agentes, clientes e contratos.
+
+    Devolve o dia em que cada cliente que cancelou deixou de ter contrato.
+    """
     with conexao.cursor() as cursor:
         cursor.executemany(
             "INSERT INTO feriado (dia, descricao) VALUES (%s, %s)",
@@ -215,11 +218,27 @@ def _catalogo(
             [(f"Cliente {n:04d}", f"{n:014d}") for n in range(1, perfil.clientes + 1)],
         )
 
+        # Parte dos clientes cancela no meio da janela e não volta. Sem isso o
+        # churn do painel de cobrança seria sempre zero. A quantidade é fixa,
+        # não sorteada, para o perfil pequeno também ter pelo menos um caso.
+        quantos_saem = max(1, round(perfil.clientes * 0.12))
+        saem = set(rng.sample(range(1, perfil.clientes + 1), quantos_saem))
+        saidas: dict[int, date] = {}
+
         # Um contrato por cliente; parte deles troca de plano no meio da janela,
         # com períodos colados, que é o caso que a constraint de exclusão aceita.
         for cliente_id in range(1, perfil.clientes + 1):
             plano_id = rng.randrange(1, len(PLANOS) + 1)
-            if rng.random() < 0.2:
+            if cliente_id in saem:
+                saida = inicio + timedelta(
+                    days=rng.randrange(90, max(91, (fim - inicio).days - 20))
+                )
+                saidas[cliente_id] = saida
+                cursor.execute(
+                    "INSERT INTO contrato (cliente_id, plano_id, vigencia) VALUES (%s, %s, %s)",
+                    (cliente_id, plano_id, f"[{inicio},{saida})"),
+                )
+            elif rng.random() < 0.2:
                 troca = inicio + timedelta(
                     days=rng.randrange(60, max(61, (fim - inicio).days - 30))
                 )
@@ -237,6 +256,8 @@ def _catalogo(
                     "INSERT INTO contrato (cliente_id, plano_id, vigencia) VALUES (%s, %s, %s)",
                     (cliente_id, plano_id, f"[{inicio},{fim + timedelta(days=365)})"),
                 )
+
+    return saidas
 
 
 def _sorteia_clientes(rng: random.Random, clientes: int, quantidade: int) -> list[int]:
@@ -266,6 +287,7 @@ def _chamados(
     inicio: date,
     dias: int,
     fim: date,
+    saidas: dict[int, date],
 ) -> Resumo:
     """Gera chamados, eventos, períodos de estado e apontamentos via COPY."""
     limite = datetime.combine(fim, time(23, 59), FUSO)
@@ -282,7 +304,11 @@ def _chamados(
         cliente_id = clientes_sorteados[indice]
         responsavel = rng.randrange(1, perfil.agentes + 1)
         prioridade = rng.choices(PRIORIDADES, weights=PESO_PRIORIDADE)[0]
-        abertura = _sorteia_abertura(rng, _sorteia_dia(rng, inicio, dias))
+        dia = _sorteia_dia(rng, inicio, dias)
+        if cliente_id in saidas and dia >= saidas[cliente_id]:
+            # cliente que cancelou não abre chamado depois de sair
+            dia = _sorteia_dia(rng, inicio, (saidas[cliente_id] - inicio).days)
+        abertura = _sorteia_abertura(rng, dia)
 
         respondido: datetime | None = None
         if rng.random() < 0.92:
@@ -336,10 +362,14 @@ def _chamados(
                     (chamado_id, estado_periodo, f"[{respondido},{fim_atendimento})")
                 )
 
+        # Um ou dois lançamentos de 10 a 60 minutos: perto de uma hora por
+        # chamado, que é o que suporte de verdade gasta. A primeira versão
+        # lançava até três blocos de três horas e a receita da massa grande
+        # passava de R$ 100 milhões.
         if resolvido is not None and respondido is not None:
-            for _ in range(rng.randrange(1, 4)):
+            for _ in range(rng.randrange(1, 3)):
                 linhas_apontamento.append(
-                    (chamado_id, responsavel, rng.randrange(15, 181), resolvido)
+                    (chamado_id, responsavel, rng.randrange(10, 61), resolvido)
                 )
 
     _copiar(
