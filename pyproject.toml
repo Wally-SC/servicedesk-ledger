@@ -41,6 +41,11 @@ select = ["E", "F", "I", "N", "B", "UP", "SIM", "RUF"]
 # escrito em português (decisão D01), onde a convenção é o prefixo "Erro".
 ignore = ["N818"]
 
+[tool.ruff.lint.flake8-bugbear]
+# Depends e Query como valor padrão são o idioma do FastAPI para injeção e
+# validação, não o defeito de argumento mutável que a regra B008 procura.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Header"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
