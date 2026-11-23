@@ -1,1 +1,1 @@
-"""Tipos de valor compartilhados: dinheiro, horas, período e erros."""
+"""Tipos de valor compartilhados: dinheiro, duração, período e erros."""

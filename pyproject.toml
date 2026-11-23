@@ -37,6 +37,9 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "B", "UP", "SIM", "RUF"]
+# N818 exige sufixo "Error" no nome da exceção. O domínio deste projeto é
+# escrito em português (decisão D01), onde a convenção é o prefixo "Erro".
+ignore = ["N818"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -46,7 +49,9 @@ packages = ["sdledger"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q --strict-markers"
+# importlib permite que unidade/ e integracao/ tenham arquivos de mesmo nome:
+# test_chamado.py existe nos dois, e é natural que exista.
+addopts = "-q --strict-markers --import-mode=importlib"
 markers = [
     "integracao: exige um PostgreSQL de verdade em contêiner",
 ]
