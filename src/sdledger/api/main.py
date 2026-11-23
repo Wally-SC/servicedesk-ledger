@@ -6,10 +6,11 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Response
+from fastapi.staticfiles import StaticFiles
 from psycopg_pool import ConnectionPool
 
 from sdledger.api import erros
-from sdledger.api.rotas import painel
+from sdledger.api.rotas import paginas, painel
 from sdledger.infrastructure.config import obter_config
 from sdledger.infrastructure.db.conexao import banco_responde
 
@@ -35,6 +36,8 @@ async def ciclo_de_vida(app: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(title="ServiceDesk Ledger", version="0.2.0", lifespan=ciclo_de_vida)
 erros.registrar(app)
 app.include_router(painel.router)
+app.include_router(paginas.router)
+app.mount("/estatico", StaticFiles(directory=paginas.PASTA_WEB / "estatico"), name="estatico")
 
 
 @app.get("/saude")
