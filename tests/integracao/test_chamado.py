@@ -103,3 +103,28 @@ def test_periodos_de_estado_nao_podem_se_sobrepor(
             "INSERT INTO chamado_periodo_estado (chamado_id, estado, periodo) VALUES (%s, %s, %s)",
             (chamado_id, "em_atendimento", "[2026-11-23 13:00-03,2026-11-23 18:00-03)"),
         )
+
+
+def test_resolucao_pode_ter_autor_agente(conexao: psycopg.Connection, cliente_id: int) -> None:
+    """Resolver é ato de agente, então o evento de resolução tem autor.
+
+    A primeira versão da constraint recusava isto: ela exigia autor apenas para
+    resposta pública e nota interna e proibia nos demais tipos. O caso só
+    apareceu quando a massa fictícia gravou a linha do tempo completa.
+    """
+    chamado_id = _chamado(conexao, cliente_id)
+    agente = conexao.execute("INSERT INTO agente (nome) VALUES ('Caio') RETURNING id").fetchone()
+    assert agente is not None
+
+    conexao.execute(
+        """
+        INSERT INTO chamado_evento (chamado_id, tipo, autor_agente_id, ocorrido_em)
+        VALUES (%s, 'resolucao', %s, %s)
+        """,
+        (chamado_id, agente[0], "2026-11-23 15:00-03"),
+    )
+
+    total = conexao.execute(
+        "SELECT count(*) FROM chamado_evento WHERE chamado_id = %s", (chamado_id,)
+    ).fetchone()
+    assert total is not None and total[0] == 1
