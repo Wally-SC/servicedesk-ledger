@@ -296,6 +296,14 @@ def _chamados(
             if candidato < limite:
                 resolvido = candidato
 
+        # Chamado antigo não fica parado para sempre: ou foi resolvido, ou foi
+        # encerrado sem resposta pública — duplicado, trote, resolvido por fora.
+        # Sem isto o backlog acumularia chamados de centenas de dias e a métrica
+        # de "sem primeira resposta" nunca teria um caso, embora exista.
+        if resolvido is None and abertura < limite - timedelta(days=45):
+            candidato = abertura + timedelta(minutes=_atraso(rng, 2_880, 1.0, 60 * 24 * 40))
+            resolvido = min(candidato, limite - timedelta(days=1))
+
         estado = "resolvido" if resolvido else ("em_atendimento" if respondido else "aberto")
         linhas_chamado.append(
             (
@@ -314,7 +322,8 @@ def _chamados(
         if respondido is not None:
             linhas_evento.append((chamado_id, "resposta_publica", responsavel, respondido))
         if resolvido is not None:
-            linhas_evento.append((chamado_id, "resolucao", responsavel, resolvido))
+            autor = responsavel if respondido is not None else None
+            linhas_evento.append((chamado_id, "resolucao", autor, resolvido))
 
         primeiro_fim = respondido or resolvido or limite
         if primeiro_fim > abertura:
@@ -327,7 +336,7 @@ def _chamados(
                     (chamado_id, estado_periodo, f"[{respondido},{fim_atendimento})")
                 )
 
-        if resolvido is not None:
+        if resolvido is not None and respondido is not None:
             for _ in range(rng.randrange(1, 4)):
                 linhas_apontamento.append(
                     (chamado_id, responsavel, rng.randrange(15, 181), resolvido)
