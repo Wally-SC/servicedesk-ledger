@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block titulo %}Cobrança · ServiceDesk Ledger{% endblock %}
+{% block conteudo %}
+<section class="cabecalho">
+  <div>
+    <h1>Cobrança recorrente</h1>
+    <p class="subtitulo">Competências fechadas. O mês corrente entra quando for faturado.</p>
+  </div>
+  <div class="controles">
+    <label for="meses">Série</label>
+    <select id="meses">
+      <option value="6">6 meses</option>
+      <option value="12" selected>12 meses</option>
+      <option value="18">18 meses</option>
+    </select>
+  </div>
+</section>
+
+<section class="indicadores">
+  <article class="cartao indicador"><span class="rotulo">Receita da última competência</span><strong id="k-receita">—</strong><span class="nota" id="k-receita-nota">—</span></article>
+  <article class="cartao indicador"><span class="rotulo">Excedente na receita</span><strong id="k-excedente">—</strong><span class="nota">horas além da franquia</span></article>
+  <article class="cartao indicador alerta"><span class="rotulo">Em atraso hoje</span><strong id="k-atraso">—</strong><span class="nota" id="k-atraso-nota">—</span></article>
+  <article class="cartao indicador"><span class="rotulo">Churn do último mês</span><strong id="k-churn">—</strong><span class="nota" id="k-churn-nota">—</span></article>
+  <article class="cartao indicador"><span class="rotulo">Faturas emitidas</span><strong id="k-faturas">—</strong><span class="nota">na última competência</span></article>
+</section>
+
+<section class="cartao">
+  <h2>Receita por competência <span class="dica">mensalidade e hora excedente</span></h2>
+  <div class="grafico alto"><canvas id="grafico-receita"></canvas></div>
+</section>
+
+<section class="grade-2">
+  <article class="cartao">
+    <h2>Atraso por idade <span class="dica">vencidas e não pagas</span></h2>
+    <div id="atraso" class="barras"></div>
+  </article>
+  <article class="cartao">
+    <h2>Churn mensal <span class="dica">% da carteira ativa no mês anterior</span></h2>
+    <div class="grafico"><canvas id="grafico-churn"></canvas></div>
+  </article>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/estatico/vendor/chart.umd.js"></script>
+<script src="/estatico/cobranca.js"></script>
+{% endblock %}
