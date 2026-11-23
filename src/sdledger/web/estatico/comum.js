@@ -30,6 +30,12 @@ function formatarMinutos(minutos) {
   return resto ? `${horas}h ${resto}min` : `${horas}h`;
 }
 
+const PRIORIDADES = { critica: "Crítica", alta: "Alta", media: "Média", baixa: "Baixa" };
+
+function nomeDaPrioridade(valor) {
+  return PRIORIDADES[valor] || valor;
+}
+
 function formatarNumero(valor) {
   return new Intl.NumberFormat("pt-BR").format(valor);
 }
@@ -51,4 +57,5 @@ function configurarGraficos() {
   Chart.defaults.font.family = "Inter, 'Segoe UI', system-ui, sans-serif";
   Chart.defaults.plugins.legend.labels.boxWidth = 12;
   Chart.defaults.animation = false;
+  Chart.defaults.locale = "pt-BR";
 }

@@ -78,7 +78,7 @@ button.primario:disabled { opacity: .5; cursor: wait; }
 
 .barras { display: flex; flex-direction: column; gap: 16px; padding-top: 4px; }
 .barra-linha { display: grid; grid-template-columns: 80px 1fr 64px; gap: 12px; align-items: center; }
-.barra-nome { color: var(--suave); text-transform: capitalize; }
+.barra-nome { color: var(--suave); }
 .barra-trilho { height: 10px; background: var(--painel-2); border-radius: 6px; overflow: hidden; border: 1px solid var(--borda); }
 .barra-preenchida { height: 100%; border-radius: 6px; background: var(--verde); }
 .barra-valor { text-align: right; font-weight: 600; }

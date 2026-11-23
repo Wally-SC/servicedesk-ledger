@@ -29,7 +29,7 @@ function barrasDeSla(sla) {
     const cor = linha.taxa_percentual >= 95 ? CORES.verde : linha.taxa_percentual >= 80 ? CORES.ambar : CORES.vermelho;
     return `
       <div class="barra-linha">
-        <span class="barra-nome">${textoSeguro(linha.prioridade)}</span>
+        <span class="barra-nome">${textoSeguro(nomeDaPrioridade(linha.prioridade))}</span>
         <div class="barra-trilho"><div class="barra-preenchida" style="width:${linha.taxa_percentual}%;background:${cor}"></div></div>
         <span class="barra-valor">${linha.taxa_percentual.toFixed(1)}%</span>
         <span class="barra-sub">${formatarNumero(linha.dentro_do_prazo)} de ${formatarNumero(linha.entregues)} no prazo</span>
@@ -47,7 +47,7 @@ function graficoDeBacklog(backlog) {
   desenhar("grafico-backlog", {
     type: "bar",
     data: {
-      labels: backlog.map((linha) => linha.prioridade),
+      labels: backlog.map((linha) => nomeDaPrioridade(linha.prioridade)),
       datasets: faixas.map(([campo, rotulo, cor]) => ({
         label: rotulo, data: backlog.map((linha) => linha[campo]), backgroundColor: cor, borderRadius: 3,
       })),
@@ -107,7 +107,7 @@ async function carregar() {
       buscar(`/api/painel/percentis?dias=${dias}`),
       buscar(`/api/painel/sla?dias=${dias}`),
       buscar("/api/painel/backlog"),
-      buscar("/api/painel/tendencia?dias=84"),
+      buscar("/api/painel/tendencia?semanas=12"),
       buscar(`/api/painel/clientes?dias=${dias}&limite=8`),
     ]);
     avisar("");
