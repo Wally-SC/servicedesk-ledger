@@ -12,7 +12,9 @@ WORKDIR /app
 
 # As dependências entram antes do código: trocar uma linha de src não invalida
 # a camada de instalação.
-COPY pyproject.toml uv.lock README.md ./
+# alembic.ini entra junto: sem ele, migrar, testar e preparar o laboratório
+# falham dentro do contêiner com "No 'script_location' key found".
+COPY pyproject.toml uv.lock README.md alembic.ini ./
 RUN uv sync --frozen --no-install-project --group dev
 
 COPY src ./src
