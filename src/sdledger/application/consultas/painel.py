@@ -8,7 +8,7 @@ e é isso que permite mapear a linha direto para estes objetos.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 
 @dataclass(frozen=True)
@@ -17,6 +17,11 @@ class Janela:
 
     inicio: datetime
     fim: datetime
+
+    @classmethod
+    def ultimos_dias(cls, agora: datetime, dias: int) -> Janela:
+        """Os últimos `dias` dias terminando em `agora`."""
+        return cls(inicio=agora - timedelta(days=dias), fim=agora)
 
 
 @dataclass(frozen=True)
