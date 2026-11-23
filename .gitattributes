@@ -1,0 +1,15 @@
+# O repositório roda dentro de contêiner Linux: tudo que é texto fica com LF na
+# cópia de trabalho, inclusive no Windows. Sem isto, core.autocrlf=true entrega
+# os .sh com CRLF e o entrypoint do Postgres falha com "bad interpreter".
+* text=auto eol=lf
+
+*.sh      text eol=lf
+*.sql     text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.py      text eol=lf
+*.toml    text eol=lf
+*.md      text eol=lf
+Dockerfile text eol=lf
+Makefile  text eol=lf
+uv.lock   text eol=lf
