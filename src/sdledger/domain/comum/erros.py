@@ -17,3 +17,11 @@ class TransicaoInvalida(ErroDeDominio):
 
 class ValorInvalido(ErroDeDominio):
     """Valor que não existe no domínio, como duração negativa."""
+
+
+class NaoEncontrado(ErroDeDominio):
+    """O que foi pedido não existe."""
+
+
+class Conflito(ErroDeDominio):
+    """A operação conflita com o estado atual, como uma medição já em andamento."""

@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from psycopg_pool import ConnectionPool
 
 from sdledger.api import erros
-from sdledger.api.rotas import cobranca, paginas, painel
+from sdledger.api.rotas import cobranca, laboratorio, paginas, painel
 from sdledger.infrastructure.config import obter_config
 from sdledger.infrastructure.db.conexao import banco_responde
 
@@ -37,6 +37,7 @@ app = FastAPI(title="ServiceDesk Ledger", version="0.2.0", lifespan=ciclo_de_vid
 erros.registrar(app)
 app.include_router(painel.router)
 app.include_router(cobranca.router)
+app.include_router(laboratorio.router)
 app.include_router(paginas.router)
 app.mount("/estatico", StaticFiles(directory=paginas.PASTA_WEB / "estatico"), name="estatico")
 
