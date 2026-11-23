@@ -11,6 +11,7 @@ from datetime import date
 import psycopg
 
 from sdledger.infrastructure.config import obter_config
+from sdledger.infrastructure.massa.faturas import faturar_historico
 from sdledger.infrastructure.massa.gerador import gerar
 from sdledger.infrastructure.massa.perfis import PERFIS
 
@@ -25,6 +26,11 @@ def principal() -> None:
         default=date.today(),
         help="Último dia da janela gerada (padrão: hoje).",
     )
+    analisador.add_argument(
+        "--sem-faturas",
+        action="store_true",
+        help="Gera só os chamados, sem fechar as competências.",
+    )
     argumentos = analisador.parse_args()
 
     perfil = PERFIS[argumentos.perfil]
@@ -32,6 +38,9 @@ def principal() -> None:
 
     with psycopg.connect(obter_config().dsn) as conexao:
         resumo = gerar(conexao, perfil, argumentos.semente, argumentos.fim)
+        faturas = None
+        if not argumentos.sem_faturas:
+            faturas = faturar_historico(conexao, argumentos.semente, argumentos.fim)
         conexao.commit()
 
     print(
@@ -39,6 +48,11 @@ def principal() -> None:
         f"{resumo.chamados} chamados, {resumo.eventos} eventos, "
         f"{resumo.periodos} períodos, {resumo.apontamentos} apontamentos."
     )
+    if faturas is not None:
+        print(
+            f"Faturamento: {faturas.competencias} competências fechadas, "
+            f"{faturas.faturas} faturas, {faturas.pagas} pagas, {faturas.em_aberto} em aberto."
+        )
 
 
 if __name__ == "__main__":
