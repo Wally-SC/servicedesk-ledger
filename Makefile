@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := ajuda
-.PHONY: ajuda instalar fmt lint tipos teste up down logs psql
+.PHONY: ajuda instalar fmt lint tipos teste teste-tudo migrar up down logs psql
 
 ajuda:  ## Lista os alvos disponíveis
 	@grep -E '^[a-z-]+:.*?##' $(MAKEFILE_LIST) | sed -e 's/:.*##/ -/'
@@ -20,6 +20,12 @@ tipos:  ## Verifica a tipagem
 
 teste:  ## Roda os testes que não exigem banco
 	uv run pytest -m "not integracao"
+
+teste-tudo:  ## Roda a suíte inteira dentro do compose, contra o banco
+	docker compose run --rm app pytest
+
+migrar:  ## Aplica as migrações no banco do compose
+	docker compose run --rm app alembic upgrade head
 
 up:  ## Sobe o banco e a aplicação
 	@test -f .env || cp .env.example .env
