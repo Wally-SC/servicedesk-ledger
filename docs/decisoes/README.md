@@ -15,5 +15,6 @@ como "nada até o momento", e não preenchida com texto genérico.
 | [0003](0003-tipagem-estrita-e-teste-de-arquitetura.md) | Tipagem estrita e teste de arquitetura desde o primeiro commit | aceita |
 | [0004](0004-processo-de-pull-request.md) | Processo de pull request trabalhando sozinho | aceita |
 | [0005](0005-definicao-das-metricas.md) | Denominador dos percentis e definição das métricas | aceita |
+| [0006](0006-massa-ficticia-em-dois-perfis.md) | Massa fictícia em dois perfis | aceita |
 
 O método de trabalho com a IA está em [../uso-de-ia.md](../uso-de-ia.md).
