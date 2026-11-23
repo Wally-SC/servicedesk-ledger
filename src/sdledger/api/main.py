@@ -2,12 +2,39 @@
 
 from __future__ import annotations
 
-from fastapi import FastAPI, Response
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
+from fastapi import FastAPI, Response
+from psycopg_pool import ConnectionPool
+
+from sdledger.api import erros
+from sdledger.api.rotas import painel
 from sdledger.infrastructure.config import obter_config
 from sdledger.infrastructure.db.conexao import banco_responde
 
-app = FastAPI(title="ServiceDesk Ledger", version="0.1.0")
+
+@asynccontextmanager
+async def ciclo_de_vida(app: FastAPI) -> AsyncIterator[None]:
+    """Abre o pool de conexões na subida e fecha na descida.
+
+    `wait=False` deixa a aplicação subir mesmo com o banco ainda acordando; a
+    rota /saude é quem diz se ele respondeu.
+    """
+    pool = ConnectionPool(
+        obter_config().dsn, min_size=1, max_size=5, open=False, kwargs={"autocommit": True}
+    )
+    pool.open(wait=False)
+    app.state.pool = pool
+    try:
+        yield
+    finally:
+        pool.close()
+
+
+app = FastAPI(title="ServiceDesk Ledger", version="0.2.0", lifespan=ciclo_de_vida)
+erros.registrar(app)
+app.include_router(painel.router)
 
 
 @app.get("/saude")

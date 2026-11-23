@@ -1,0 +1,83 @@
+"""Dublês para as rotas: a API é testada sem banco.
+
+O que se testa aqui é a tradução de HTTP — parâmetro, validação, formato da
+resposta. As consultas têm seus próprios testes contra PostgreSQL real.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Iterator
+from datetime import date, datetime, timedelta, timezone
+
+import pytest
+from fastapi.testclient import TestClient
+
+from sdledger.api import dependencias
+from sdledger.api.main import app
+from sdledger.application.consultas.painel import (
+    ClienteCritico,
+    Janela,
+    LinhaDeBacklog,
+    PercentisDeAtendimento,
+    SemanaDaTendencia,
+    TaxaDeSla,
+)
+
+FUSO = timezone(timedelta(hours=-3))
+AGORA = datetime(2026, 11, 23, 12, 0, tzinfo=FUSO)
+
+
+class RelogioFixo:
+    def agora(self) -> datetime:
+        return AGORA
+
+
+class PainelFalso:
+    """Guarda as janelas recebidas para o teste conferir o que a rota montou."""
+
+    def __init__(self) -> None:
+        self.janelas: list[Janela] = []
+
+    def percentis(self, janela: Janela) -> PercentisDeAtendimento:
+        self.janelas.append(janela)
+        return PercentisDeAtendimento(100, 3, 20.0, 160.0, 260.0, 210.0, 1140.0, 2100.0)
+
+    def backlog(self, agora: datetime) -> list[LinhaDeBacklog]:
+        return [LinhaDeBacklog("critica", 10, 1, 2, 3, 4, 12.5)]
+
+    def taxa_de_sla(self, janela: Janela) -> list[TaxaDeSla]:
+        self.janelas.append(janela)
+        return [TaxaDeSla("alta", 50, 45, 90.0)]
+
+    def tendencia_semanal(self, janela: Janela) -> list[SemanaDaTendencia]:
+        self.janelas.append(janela)
+        return [
+            SemanaDaTendencia(date(2026, 11, 9), 30, 2000.0, None, None, 30),
+            SemanaDaTendencia(date(2026, 11, 16), 35, 1900.0, -100.0, 5, 65),
+        ]
+
+    def clientes_criticos(
+        self, janela: Janela, agora: datetime, limite: int = 10
+    ) -> list[ClienteCritico]:
+        self.janelas.append(janela)
+        return [ClienteCritico(1, 1, 7, "Cliente 0007", 90, 12, 30, 5.5, 71.5)][:limite]
+
+
+@pytest.fixture
+def agora() -> datetime:
+    return AGORA
+
+
+@pytest.fixture
+def painel_falso() -> PainelFalso:
+    return PainelFalso()
+
+
+@pytest.fixture
+def cliente(painel_falso: PainelFalso) -> Iterator[TestClient]:
+    app.dependency_overrides[dependencias.obter_consultas_do_painel] = lambda: painel_falso
+    app.dependency_overrides[dependencias.obter_relogio] = RelogioFixo
+    try:
+        yield TestClient(app)
+    finally:
+        app.dependency_overrides.clear()
