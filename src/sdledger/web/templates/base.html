@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}ServiceDesk Ledger{% endblock %}</title>
+  <link rel="stylesheet" href="/estatico/estilo.css">
+</head>
+<body>
+  <header class="topo">
+    <a class="marca" href="/">
+      <span class="marca-ponto"></span>ServiceDesk <strong>Ledger</strong>
+    </a>
+    <nav>
+      <a href="/" class="{{ 'ativo' if pagina == 'painel' }}">Painel</a>
+      <a href="/cobranca" class="{{ 'ativo' if pagina == 'cobranca' }}">Cobrança</a>
+      <a href="/laboratorio" class="{{ 'ativo' if pagina == 'laboratorio' }}">Laboratório</a>
+    </nav>
+  </header>
+  <main>
+    <div id="aviso" class="aviso" hidden></div>
+    {% block conteudo %}{% endblock %}
+  </main>
+  <footer class="rodape">
+    Massa fictícia gerada por script reproduzível. Todo cálculo analítico é feito em SQL.
+  </footer>
+  <script src="/estatico/comum.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
