@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block titulo %}Laboratório de índices · ServiceDesk Ledger{% endblock %}
+{% block conteudo %}
+<section class="cabecalho">
+  <div>
+    <h1>Laboratório de índices</h1>
+    <p class="subtitulo">Cada experimento mede a consulta sem e com o índice candidato, no banco próprio do laboratório. O índice é criado e removido de verdade.</p>
+  </div>
+  <div class="controles">
+    <label for="token">Token</label>
+    <input id="token" type="password" placeholder="LAB_TOKEN" autocomplete="off">
+    <label for="repeticoes">Repetições</label>
+    <select id="repeticoes"><option>3</option><option selected>5</option><option>9</option></select>
+  </div>
+</section>
+<p class="protocolo">Protocolo: <code>EXPLAIN (ANALYZE, BUFFERS)</code>, uma execução de aquecimento descartada, vale a mediana. Os números são de cache quente — e estão declarados assim.</p>
+<div id="experimentos"></div>
+{% endblock %}
+{% block scripts %}
+<script src="/estatico/laboratorio.js"></script>
+{% endblock %}
