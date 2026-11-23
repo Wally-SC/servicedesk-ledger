@@ -13,7 +13,11 @@ from sqlalchemy import engine_from_config, pool
 from sdledger.infrastructure.config import obter_config
 
 config = context.config
-config.set_main_option("sqlalchemy.url", obter_config().dsn_sqlalchemy)
+# O laboratório migra o próprio banco passando a URL por atributo; sem atributo,
+# vale o banco da aplicação.
+config.set_main_option(
+    "sqlalchemy.url", config.attributes.get("url") or obter_config().dsn_sqlalchemy
+)
 
 
 def migrar_offline() -> None:
