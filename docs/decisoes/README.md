@@ -14,5 +14,6 @@ como "nada até o momento", e não preenchida com texto genérico.
 | [0002](0002-acesso-a-dados-sem-orm.md) | Acesso a dados com psycopg3 e SQL em arquivo, sem ORM | aceita |
 | [0003](0003-tipagem-estrita-e-teste-de-arquitetura.md) | Tipagem estrita e teste de arquitetura desde o primeiro commit | aceita |
 | [0004](0004-processo-de-pull-request.md) | Processo de pull request trabalhando sozinho | aceita |
+| [0005](0005-definicao-das-metricas.md) | Denominador dos percentis e definição das métricas | aceita |
 
 O método de trabalho com a IA está em [../uso-de-ia.md](../uso-de-ia.md).
