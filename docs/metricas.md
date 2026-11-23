@@ -5,8 +5,7 @@ Número de painel sem definição escrita é número indefensável: "p95 de quê
 qual janela, contando chamado aberto ou resolvido no período?" é a primeira
 pergunta de qualquer entrevista.
 
-Cada métrica aponta o arquivo `.sql` que a implementa. Enquanto o arquivo não
-existe, a linha diz que está planejada.
+Cada métrica aponta o arquivo `.sql` que a implementa.
 
 ## Convenções
 
@@ -29,7 +28,7 @@ qualquer mensagem do próprio solicitante. Chamado que nunca teve resposta públ
 não entra no cálculo e aparece separado, como contagem de chamados sem primeira
 resposta — diluí-lo no percentil esconderia o pior caso.
 
-*Planejada: `infrastructure/sql/painel/percentis_primeira_resposta.sql`*
+*Implementada em [`painel/percentis_de_atendimento.sql`](../src/sdledger/infrastructure/sql/painel/percentis_de_atendimento.sql), junto do tempo de resolução: as duas métricas têm a mesma coorte.*
 
 ### Tempo de resolução
 
@@ -40,7 +39,7 @@ Na primeira versão o relógio não para enquanto o chamado está aguardando o
 cliente. O desconto desses períodos entra depois, num pull request próprio, com os
 números antes e depois — é mudança de métrica e precisa ser visível.
 
-*Planejada: `infrastructure/sql/painel/percentis_resolucao.sql`*
+*Implementada em [`painel/percentis_de_atendimento.sql`](../src/sdledger/infrastructure/sql/painel/percentis_de_atendimento.sql).*
 
 ### p50, p90 e p95
 
@@ -58,7 +57,7 @@ do prazo da política de SLA **vigente na data de abertura** do chamado.
 A política varia por prioridade e por plano e tem vigência: um chamado aberto
 antes de o cliente trocar de plano é medido pelo prazo que valia naquele dia.
 
-*Planejada: `infrastructure/sql/painel/taxa_sla.sql`*
+*Implementada em [`painel/taxa_de_sla.sql`](../src/sdledger/infrastructure/sql/painel/taxa_de_sla.sql).*
 
 ### Backlog
 
@@ -70,46 +69,54 @@ não em horas úteis. Backlog é leitura de fila, e quem olha a fila pensa em "e
 chamado está parado há cinco dias", não em expediente. É a única métrica do painel
 que usa tempo corrido, e está marcada assim de propósito.
 
-*Planejada: `infrastructure/sql/painel/backlog_por_idade.sql`*
+*Implementada em [`painel/backlog_por_idade.sql`](../src/sdledger/infrastructure/sql/painel/backlog_por_idade.sql).*
 
 ### Tendência semanal
 
 Série dos percentis e da taxa de SLA por semana ISO, com a variação em relação à
 semana anterior obtida por função de janela.
 
-*Planejada: `infrastructure/sql/painel/tendencia_semanal.sql`*
+*Implementada em [`painel/tendencia_semanal.sql`](../src/sdledger/infrastructure/sql/painel/tendencia_semanal.sql). A série usa só semanas ISO completas: a semana corrente fica de fora.*
 
 ### Ranking de clientes críticos
 
-Clientes ordenados por uma combinação de volume na janela, taxa de violação de SLA
-e idade do backlog. A fórmula exata entra junto da consulta e é registrada aqui
-quando existir.
+Clientes com chamado aberto na janela, ordenados por um escore explícito:
 
-*Planejada: `infrastructure/sql/painel/ranking_clientes.sql`*
+```
+escore = em_aberto × 3 + chamados de prioridade alta ou crítica + idade do chamado aberto mais antigo, em dias
+```
+
+Chamado em aberto pesa três vezes porque é o que ainda pode virar violação. O
+quartil vem de `NTILE(4)` sobre todos os clientes da janela, não só sobre os que
+aparecem na tela.
+
+*Implementada em [`painel/ranking_de_clientes.sql`](../src/sdledger/infrastructure/sql/painel/ranking_de_clientes.sql).*
 
 ## Cobrança
 
 ### Horas consumidas e horas excedentes
 
-Horas consumidas no ciclo são a soma dos apontamentos dos chamados do cliente.
+Horas consumidas no ciclo são a soma dos apontamentos dos chamados do cliente,
+pela data do apontamento no fuso de São Paulo.
 Horas excedentes são o que passa da franquia do plano, arredondado **para cima em
 blocos de 15 minutos**, no fechamento do ciclo.
 
-O arredondamento é regra de negócio e mora no domínio, não no SQL.
+O arredondamento é regra de negócio e mora no domínio, não no SQL: está em
+`Franquia.excedente` e é testado nas bordas de 1, 15, 16 e 30 minutos.
 
 ### Receita do mês
 
-Soma do valor das faturas com competência no mês, emitidas ou não pagas. É receita
-reconhecida, não caixa.
+Soma do valor das faturas com competência no mês, emitidas ou pagas; fatura
+cancelada fica de fora. É receita reconhecida, não caixa.
 
-*Planejada: `infrastructure/sql/faturamento/receita_do_mes.sql`*
+*Implementada em [`faturamento/receita_por_competencia.sql`](../src/sdledger/infrastructure/sql/faturamento/receita_por_competencia.sql). A série usa só competências fechadas: o mês corrente fica de fora.*
 
 ### Receita em atraso
 
 Soma do valor das faturas vencidas e não pagas na data de referência. Fatura
 vencida hoje ainda não é atraso.
 
-*Planejada: `infrastructure/sql/faturamento/receita_em_atraso.sql`*
+*Implementada em [`faturamento/receita_em_atraso.sql`](../src/sdledger/infrastructure/sql/faturamento/receita_em_atraso.sql).*
 
 ### Churn mensal
 
@@ -119,4 +126,4 @@ dividido pelo total de ativos no mês anterior.
 Cliente que nunca teve plano ativo não entra em nenhum dos dois lados. Troca de
 plano não é churn.
 
-*Planejada: `infrastructure/sql/faturamento/churn_mensal.sql`*
+*Implementada em [`faturamento/churn_mensal.sql`](../src/sdledger/infrastructure/sql/faturamento/churn_mensal.sql).*
