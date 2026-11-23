@@ -38,6 +38,11 @@ class Config(BaseSettings):
         return self._dsn(self.postgres_db)
 
     @property
+    def dsn_sqlalchemy(self) -> str:
+        """Mesmo endereço no formato que o Alembic espera."""
+        return self.dsn.replace("postgresql://", "postgresql+psycopg://", 1)
+
+    @property
     def dsn_laboratorio(self) -> str:
         """Endereço do banco onde o laboratório cria e remove índice."""
         return self._dsn(self.lab_postgres_db)
