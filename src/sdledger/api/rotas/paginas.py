@@ -28,3 +28,8 @@ def painel(request: Request) -> HTMLResponse:
 @router.get("/cobranca", response_class=HTMLResponse)
 def cobranca(request: Request) -> HTMLResponse:
     return TEMPLATES.TemplateResponse(request, "cobranca.html", {"pagina": "cobranca"})
+
+
+@router.get("/laboratorio", response_class=HTMLResponse)
+def laboratorio(request: Request) -> HTMLResponse:
+    return TEMPLATES.TemplateResponse(request, "laboratorio.html", {"pagina": "laboratorio"})

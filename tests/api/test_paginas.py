@@ -32,3 +32,11 @@ def test_cobranca_e_servida() -> None:
 
     assert resposta.status_code == 200
     assert "Cobrança recorrente" in resposta.text
+
+
+def test_laboratorio_e_servido() -> None:
+    resposta = cliente.get("/laboratorio")
+
+    assert resposta.status_code == 200
+    assert "Laboratório de índices" in resposta.text
+    assert cliente.get("/estatico/laboratorio.js").status_code == 200
