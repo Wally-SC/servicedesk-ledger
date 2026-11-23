@@ -21,9 +21,9 @@ function indicadores(receita, atraso, churn) {
     const variacao = ultima.variacao_percentual;
     document.getElementById("k-receita-nota").textContent =
       variacao === null ? rotuloDoMes(ultima.competencia)
-        : `${rotuloDoMes(ultima.competencia)} · ${variacao > 0 ? "+" : ""}${variacao.toFixed(1)}% no mês`;
+        : `${rotuloDoMes(ultima.competencia)} · ${variacao > 0 ? "+" : ""}${formatarPercentual(variacao)} no mês`;
     document.getElementById("k-excedente").textContent =
-      `${(100 * ultima.excedente_centavos / ultima.receita_centavos).toFixed(0)}%`;
+      formatarPercentual(100 * ultima.excedente_centavos / ultima.receita_centavos, 0);
     document.getElementById("k-faturas").textContent = formatarNumero(ultima.faturas);
   }
   document.getElementById("k-atraso").textContent = formatarReais(atraso.total_centavos);
@@ -32,7 +32,7 @@ function indicadores(receita, atraso, churn) {
   const ultimoChurn = churn[churn.length - 1];
   if (ultimoChurn) {
     document.getElementById("k-churn").textContent =
-      ultimoChurn.churn_percentual === null ? "—" : `${ultimoChurn.churn_percentual.toFixed(2)}%`;
+      formatarPercentual(ultimoChurn.churn_percentual, 2);
     document.getElementById("k-churn-nota").textContent =
       `${ultimoChurn.perdidos} de ${ultimoChurn.ativos_no_mes_anterior} clientes`;
   }
@@ -84,12 +84,12 @@ function graficoDeChurn(churn) {
       labels: churn.map((m) => rotuloDoMes(m.mes)),
       datasets: [{
         label: "churn %", data: churn.map((m) => m.churn_percentual),
-        borderColor: CORES.ambar, backgroundColor: CORES.ambar, tension: .3, pointRadius: 3,
+        borderColor: CORES.ambar, backgroundColor: CORES.ambar, tension: 0, pointRadius: 3,
       }],
     },
     options: {
       maintainAspectRatio: false,
-      scales: { y: { beginAtZero: true, ticks: { callback: (v) => `${v}%` } } },
+      scales: { y: { beginAtZero: true, ticks: { callback: (v) => formatarPercentual(v) } } },
       plugins: { legend: { display: false } },
     },
   });

@@ -40,6 +40,15 @@ function formatarNumero(valor) {
   return new Intl.NumberFormat("pt-BR").format(valor);
 }
 
+function formatarDecimal(valor, casas = 1) {
+  return new Intl.NumberFormat("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas }).format(valor);
+}
+
+function formatarPercentual(valor, casas = 1) {
+  if (valor === null || valor === undefined) return "—";
+  return `${formatarDecimal(valor, casas)}%`;
+}
+
 function formatarReais(centavos) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(centavos / 100);
 }
