@@ -23,3 +23,8 @@ router = APIRouter(include_in_schema=False)
 @router.get("/", response_class=HTMLResponse)
 def painel(request: Request) -> HTMLResponse:
     return TEMPLATES.TemplateResponse(request, "painel.html", {"pagina": "painel"})
+
+
+@router.get("/cobranca", response_class=HTMLResponse)
+def cobranca(request: Request) -> HTMLResponse:
+    return TEMPLATES.TemplateResponse(request, "cobranca.html", {"pagina": "cobranca"})

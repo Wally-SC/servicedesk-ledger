@@ -14,6 +14,11 @@ from fastapi.testclient import TestClient
 
 from sdledger.api import dependencias
 from sdledger.api.main import app
+from sdledger.application.consultas.faturamento import (
+    MesDeChurn,
+    ReceitaDaCompetencia,
+    ReceitaEmAtraso,
+)
 from sdledger.application.consultas.painel import (
     ClienteCritico,
     Janela,
@@ -63,6 +68,27 @@ class PainelFalso:
         return [ClienteCritico(1, 1, 7, "Cliente 0007", 90, 12, 30, 5.5, 71.5)][:limite]
 
 
+class CobrancaFalsa:
+    def __init__(self) -> None:
+        self.intervalos: list[tuple[date, date]] = []
+
+    def receita_por_competencia(self, inicio: date, fim: date) -> list[ReceitaDaCompetencia]:
+        self.intervalos.append((inicio, fim))
+        return [ReceitaDaCompetencia(date(2026, 10, 1), 3, 150000, 50000, 200000, None)]
+
+    def receita_em_atraso(self, referencia: date) -> ReceitaEmAtraso:
+        return ReceitaEmAtraso(2, 2, 90000, 10000, 30000, 50000)
+
+    def churn_mensal(self, inicio: date, fim: date) -> list[MesDeChurn]:
+        self.intervalos.append((inicio, fim))
+        return [MesDeChurn(date(2026, 10, 1), 100, 2, 2.0)]
+
+
+@pytest.fixture
+def cobranca_falsa() -> CobrancaFalsa:
+    return CobrancaFalsa()
+
+
 @pytest.fixture
 def agora() -> datetime:
     return AGORA
@@ -76,6 +102,16 @@ def painel_falso() -> PainelFalso:
 @pytest.fixture
 def cliente(painel_falso: PainelFalso) -> Iterator[TestClient]:
     app.dependency_overrides[dependencias.obter_consultas_do_painel] = lambda: painel_falso
+    app.dependency_overrides[dependencias.obter_relogio] = RelogioFixo
+    try:
+        yield TestClient(app)
+    finally:
+        app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def cliente_cobranca(cobranca_falsa: CobrancaFalsa) -> Iterator[TestClient]:
+    app.dependency_overrides[dependencias.obter_consultas_de_faturamento] = lambda: cobranca_falsa
     app.dependency_overrides[dependencias.obter_relogio] = RelogioFixo
     try:
         yield TestClient(app)

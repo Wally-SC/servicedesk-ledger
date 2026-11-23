@@ -13,7 +13,9 @@ from fastapi import Depends, Request
 from psycopg_pool import ConnectionPool
 
 from sdledger.application.portas.consultas import ConsultasDoPainel
+from sdledger.application.portas.consultas_de_faturamento import ConsultasDeFaturamento
 from sdledger.application.portas.relogio import Relogio
+from sdledger.infrastructure.consultas.faturamento import ConsultasDeFaturamentoEmPostgres
 from sdledger.infrastructure.consultas.painel import ConsultasDoPainelEmPostgres
 from sdledger.infrastructure.relogio import RelogioDoSistema
 
@@ -32,6 +34,12 @@ def obter_consultas_do_painel(
     conexao: psycopg.Connection = Depends(obter_conexao),
 ) -> ConsultasDoPainel:
     return ConsultasDoPainelEmPostgres(conexao)
+
+
+def obter_consultas_de_faturamento(
+    conexao: psycopg.Connection = Depends(obter_conexao),
+) -> ConsultasDeFaturamento:
+    return ConsultasDeFaturamentoEmPostgres(conexao)
 
 
 def obter_relogio() -> Relogio:

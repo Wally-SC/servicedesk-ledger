@@ -20,7 +20,7 @@ function indicadores(percentis, sla) {
   const entregues = sla.reduce((soma, linha) => soma + linha.entregues, 0);
   const noPrazo = sla.reduce((soma, linha) => soma + linha.dentro_do_prazo, 0);
   document.getElementById("k-sla").textContent =
-    entregues ? `${(100 * noPrazo / entregues).toFixed(1)}%` : "—";
+    entregues ? formatarPercentual(100 * noPrazo / entregues) : "—";
 }
 
 function barrasDeSla(sla) {
@@ -31,7 +31,7 @@ function barrasDeSla(sla) {
       <div class="barra-linha">
         <span class="barra-nome">${textoSeguro(nomeDaPrioridade(linha.prioridade))}</span>
         <div class="barra-trilho"><div class="barra-preenchida" style="width:${linha.taxa_percentual}%;background:${cor}"></div></div>
-        <span class="barra-valor">${linha.taxa_percentual.toFixed(1)}%</span>
+        <span class="barra-valor">${formatarPercentual(linha.taxa_percentual)}</span>
         <span class="barra-sub">${formatarNumero(linha.dentro_do_prazo)} de ${formatarNumero(linha.entregues)} no prazo</span>
       </div>`;
   }).join("");
@@ -95,7 +95,7 @@ function ranking(clientes) {
       <td class="num">${formatarNumero(c.chamados)}</td>
       <td class="num">${formatarNumero(c.em_aberto)}</td>
       <td class="num">${formatarNumero(c.prioritarios)}</td>
-      <td class="num">${c.idade_maxima_dias.toFixed(1)} d</td>
+      <td class="num">${formatarDecimal(c.idade_maxima_dias)} d</td>
       <td><span class="selo q${c.quartil}">Q${c.quartil}</span></td>
     </tr>`).join("");
 }

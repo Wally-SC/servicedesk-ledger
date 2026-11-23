@@ -25,3 +25,10 @@ def test_estaticos_sao_servidos() -> None:
 def test_paginas_nao_aparecem_na_documentacao_da_api() -> None:
     caminhos = cliente.get("/openapi.json").json()["paths"]
     assert "/" not in caminhos
+
+
+def test_cobranca_e_servida() -> None:
+    resposta = cliente.get("/cobranca")
+
+    assert resposta.status_code == 200
+    assert "Cobrança recorrente" in resposta.text
