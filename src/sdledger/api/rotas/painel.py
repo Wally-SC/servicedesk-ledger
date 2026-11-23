@@ -53,11 +53,11 @@ def taxa_de_sla(
 
 @router.get("/tendencia", response_model=list[SemanaDaTendencia])
 def tendencia(
-    dias: int = Query(84, ge=7, le=365, description="Janela da série, em dias."),
+    semanas: int = Query(12, ge=2, le=52, description="Semanas completas na série."),
     consultas: ConsultasDoPainel = Depends(obter_consultas_do_painel),
     relogio: Relogio = Depends(obter_relogio),
 ) -> list[SemanaDaTendencia]:
-    return consultas.tendencia_semanal(Janela.ultimos_dias(relogio.agora(), dias))
+    return consultas.tendencia_semanal(Janela.semanas_completas(relogio.agora(), semanas))
 
 
 @router.get("/clientes", response_model=list[ClienteCritico])

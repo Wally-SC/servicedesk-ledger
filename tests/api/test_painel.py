@@ -56,3 +56,11 @@ def test_ranking_respeita_o_limite(cliente: TestClient) -> None:
     assert cliente.get("/api/painel/clientes", params={"limite": 51}).status_code == 422
     corpo = cliente.get("/api/painel/clientes", params={"limite": 1}).json()
     assert len(corpo) == 1 and corpo[0]["nome"] == "Cliente 0007"
+
+
+def test_tendencia_usa_so_semanas_completas(cliente: TestClient, painel_falso) -> None:
+    cliente.get("/api/painel/tendencia", params={"semanas": 4})
+
+    janela = painel_falso.janelas[-1]
+    assert janela.fim.weekday() == 0 and janela.fim.hour == 0
+    assert janela.fim - janela.inicio == timedelta(weeks=4)

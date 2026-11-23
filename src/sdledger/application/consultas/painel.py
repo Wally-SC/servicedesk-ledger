@@ -23,6 +23,19 @@ class Janela:
         """Os últimos `dias` dias terminando em `agora`."""
         return cls(inicio=agora - timedelta(days=dias), fim=agora)
 
+    @classmethod
+    def semanas_completas(cls, agora: datetime, semanas: int) -> Janela:
+        """As últimas `semanas` semanas ISO inteiras, sem a semana corrente.
+
+        A semana em andamento fica de fora de propósito: numa segunda de manhã
+        ela teria duas horas de dados, e o p95 calculado sobre elas desenharia
+        um ponto na série que não significa nada.
+        """
+        segunda = (agora - timedelta(days=agora.weekday())).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        return cls(inicio=segunda - timedelta(weeks=semanas), fim=segunda)
+
 
 @dataclass(frozen=True)
 class PercentisDeAtendimento:

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block titulo %}Painel de SLA · ServiceDesk Ledger{% endblock %}
+{% block conteudo %}
+<section class="cabecalho">
+  <div>
+    <h1>Painel de SLA e backlog</h1>
+    <p class="subtitulo">Tempos em minutos de expediente, sobre os chamados resolvidos na janela.</p>
+  </div>
+  <div class="controles">
+    <label for="janela">Janela</label>
+    <select id="janela">
+      <option value="7">7 dias</option>
+      <option value="30" selected>30 dias</option>
+      <option value="90">90 dias</option>
+    </select>
+    <span id="atualizado" class="atualizado"></span>
+  </div>
+</section>
+
+<section class="indicadores">
+  <article class="cartao indicador"><span class="rotulo">Resolvidos</span><strong id="k-resolvidos">—</strong><span class="nota">na janela</span></article>
+  <article class="cartao indicador"><span class="rotulo">1ª resposta · p50</span><strong id="k-resp-p50">—</strong><span class="nota" id="k-resp-p95">p95 —</span></article>
+  <article class="cartao indicador"><span class="rotulo">Resolução · p50</span><strong id="k-res-p50">—</strong><span class="nota" id="k-res-p95">p95 —</span></article>
+  <article class="cartao indicador"><span class="rotulo">SLA cumprido</span><strong id="k-sla">—</strong><span class="nota">prazo vigente na abertura</span></article>
+  <article class="cartao indicador alerta"><span class="rotulo">Sem 1ª resposta</span><strong id="k-sem-resposta">—</strong><span class="nota">fora do percentil, contados à parte</span></article>
+</section>
+
+<section class="grade-2">
+  <article class="cartao">
+    <h2>Cumprimento de SLA por prioridade</h2>
+    <div id="sla" class="barras"></div>
+  </article>
+  <article class="cartao">
+    <h2>Backlog por idade <span class="dica">dias corridos</span></h2>
+    <div class="grafico"><canvas id="grafico-backlog"></canvas></div>
+  </article>
+</section>
+
+<section class="cartao">
+  <h2>Tendência semanal <span class="dica">últimas 12 semanas completas</span></h2>
+  <div class="grafico alto"><canvas id="grafico-tendencia"></canvas></div>
+</section>
+
+<section class="cartao">
+  <h2>Clientes que merecem atenção</h2>
+  <table class="tabela">
+    <thead><tr><th>#</th><th>Cliente</th><th class="num">Chamados</th><th class="num">Em aberto</th><th class="num">Alta/crítica</th><th class="num">Mais antigo</th><th>Quartil</th></tr></thead>
+    <tbody id="ranking"></tbody>
+  </table>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/estatico/vendor/chart.umd.js"></script>
+<script src="/estatico/painel.js"></script>
+{% endblock %}
