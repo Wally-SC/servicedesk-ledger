@@ -32,3 +32,45 @@ jobs:
 
       - name: Tipagem
         run: uv run mypy
+
+  testes:
+    name: Testes
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: sdledger
+          POSTGRES_USER: sdledger
+          POSTGRES_PASSWORD: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sdledger -d sdledger"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_DB: sdledger
+      POSTGRES_USER: sdledger
+      POSTGRES_PASSWORD: ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instala o uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Instala as dependências
+        run: uv sync --frozen --group dev
+
+      # Roda a suíte inteira, sem separar por marcador: `pytest -m integracao`
+      # sai com código 5 quando nenhum teste casa o marcador, e isso reprovaria
+      # o job enquanto os testes de integração não existem.
+      - name: Testes
+        run: uv run pytest
