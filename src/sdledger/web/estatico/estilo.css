@@ -102,7 +102,39 @@ button.primario:disabled { opacity: .5; cursor: wait; }
 }
 .rodape { color: var(--suave); font-size: 12px; text-align: center; padding: 18px; }
 
+.protocolo { color: var(--suave); margin: -8px 0 20px; font-size: 14px; }
+code, pre { font-family: "JetBrains Mono", Consolas, ui-monospace, monospace; font-size: 13px; }
+code { color: var(--verde); }
+.experimento-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.experimento h2 { margin-bottom: 8px; }
+.experimento .selo { margin-right: 6px; }
+details { margin: 14px 0 4px; }
+summary { cursor: pointer; color: var(--suave); }
+.sql-lado-a-lado { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 10px; }
+pre { background: var(--painel-2); border: 1px solid var(--borda); border-radius: 8px; padding: 12px; margin: 0; overflow-x: auto; white-space: pre-wrap; color: var(--texto); }
+.resultado { margin-top: 14px; }
+.resultado.vazio, .vazio { color: var(--suave); }
+.resultado.falha { color: var(--vermelho); }
+.numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.numeros > div { background: var(--painel-2); border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; }
+.numeros .rotulo { color: var(--suave); font-size: 12px; }
+.numeros strong { font-size: 24px; }
+.ganho.forte strong { color: var(--verde); }
+.ganho.medio strong { color: var(--azul); }
+.ganho.fraco strong { color: var(--ambar); }
+.ambiente { color: var(--suave); font-size: 12px; margin: 8px 0 12px; }
+.planos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.planos h3 { font-size: 13px; font-weight: 600; color: var(--suave); margin: 0 0 6px; }
+.plano { list-style: none; margin: 0; padding: 0; }
+.plano li { padding: 6px 8px 6px calc(10px + var(--nivel) * 18px); border-left: 2px solid var(--borda); margin-bottom: 4px; background: var(--painel-2); border-radius: 0 6px 6px 0; display: flex; flex-direction: column; }
+.plano li.usa-indice { border-left-color: var(--verde); }
+.plano li.varredura { border-left-color: var(--ambar); }
+.plano .op { font-weight: 600; }
+.plano .det { color: var(--azul); font-size: 13px; }
+.plano .met { color: var(--suave); font-size: 12px; }
+
 @media (max-width: 980px) {
+  .planos, .sql-lado-a-lado { grid-template-columns: 1fr; }
   .indicadores { grid-template-columns: repeat(2, 1fr); }
   .grade-2 { grid-template-columns: 1fr; }
 }
