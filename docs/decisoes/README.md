@@ -17,5 +17,6 @@ como "nada até o momento", e não preenchida com texto genérico.
 | [0005](0005-definicao-das-metricas.md) | Denominador dos percentis e definição das métricas | aceita |
 | [0006](0006-massa-ficticia-em-dois-perfis.md) | Massa fictícia em dois perfis | aceita |
 | [0007](0007-regras-de-fechamento-do-ciclo.md) | Regras de fechamento do ciclo de faturamento | aceita |
+| [0008](0008-protocolo-de-medicao.md) | Protocolo de medição do laboratório de índices | aceita |
 
 O método de trabalho com a IA está em [../uso-de-ia.md](../uso-de-ia.md).
